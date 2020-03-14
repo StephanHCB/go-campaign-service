@@ -204,7 +204,7 @@
       "headers": {
         "Location": {
           "type": "string",
-          "description": "Location header\n\nin: header"
+          "description": "Location header"
         }
       }
     },
@@ -213,7 +213,7 @@
       "headers": {
         "Location": {
           "type": "string",
-          "description": "Location header\n\nin: header"
+          "description": "Location header"
         }
       }
     },
