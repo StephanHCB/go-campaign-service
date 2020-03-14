@@ -1,0 +1,232 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Documentation of our campaign-service API.",
+    "title": "campaign-service.",
+    "version": "1.0.0"
+  },
+  "host": "localhost:8081",
+  "basePath": "/",
+  "paths": {
+    "/api/rest/v1/campaigns": {
+      "put": {
+        "description": "This will create a new campaign and return its location",
+        "tags": [
+          "campaign-tag"
+        ],
+        "operationId": "createCampaignParams",
+        "parameters": [
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/campaignDto"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/responses/campaignLocationResponse"
+          },
+          "400": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/errorResponse"
+          }
+        }
+      }
+    },
+    "/api/rest/v1/campaigns/{id}": {
+      "get": {
+        "description": "This will return an existing campaign",
+        "tags": [
+          "campaign-tag"
+        ],
+        "operationId": "getCampaignParams",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The id of the campaign",
+            "name": "Id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/campaignDataResponse"
+          },
+          "401": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "404": {
+            "$ref": "#/responses/errorResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "This will update an existing campaign",
+        "tags": [
+          "campaign-tag"
+        ],
+        "operationId": "updateCampaignParams",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The id of the campaign",
+            "name": "Id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "The changed data of the campaign to be set",
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/campaignDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/campaignLocationResponse"
+          },
+          "400": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "404": {
+            "$ref": "#/responses/errorResponse"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "campaignDto": {
+      "type": "object",
+      "title": "Model for CampaignDto.",
+      "properties": {
+        "body": {
+          "description": "The email body",
+          "type": "string",
+          "x-go-name": "Body"
+        },
+        "recipients": {
+          "description": "The list of recipients",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/recipientDto"
+          },
+          "x-go-name": "Recipients"
+        },
+        "subject": {
+          "description": "The email subject",
+          "type": "string",
+          "x-go-name": "Subject"
+        }
+      },
+      "x-go-name": "CampaignDto",
+      "x-go-package": "github.com/StephanHCB/go-campaign-service/api/v1/campaign"
+    },
+    "errorDto": {
+      "type": "object",
+      "title": "Model for the generic error response.",
+      "properties": {
+        "details": {
+          "description": "Additional details",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Details"
+        },
+        "message": {
+          "description": "The error code",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "requestid": {
+          "description": "The request id associated with this request",
+          "type": "string",
+          "x-go-name": "RequestId"
+        },
+        "timestamp": {
+          "description": "The timestamp at which the error occurred",
+          "type": "string",
+          "x-go-name": "Timestamp"
+        }
+      },
+      "x-go-name": "ErrorDto",
+      "x-go-package": "github.com/StephanHCB/go-campaign-service/api/v1/apierrors"
+    },
+    "recipientDto": {
+      "type": "object",
+      "title": "Model for RecipientDto.",
+      "properties": {
+        "to_address": {
+          "description": "The email address to send to",
+          "type": "string",
+          "x-go-name": "ToAddress"
+        }
+      },
+      "x-go-name": "RecipientDto",
+      "x-go-package": "github.com/StephanHCB/go-campaign-service/api/v1/campaign"
+    }
+  },
+  "responses": {
+    "campaignDataResponse": {
+      "description": "The campaign data response including a Location header",
+      "schema": {
+        "$ref": "#/definitions/campaignDto"
+      },
+      "headers": {
+        "Location": {
+          "type": "string",
+          "description": "Location header\n\nin: header"
+        }
+      }
+    },
+    "campaignLocationResponse": {
+      "description": "The campaign location response with just a Location header",
+      "headers": {
+        "Location": {
+          "type": "string",
+          "description": "Location header\n\nin: header"
+        }
+      }
+    },
+    "errorResponse": {
+      "description": "The generic error response.",
+      "schema": {
+        "$ref": "#/definitions/errorDto"
+      }
+    }
+  },
+  "securityDefinitions": {
+    "basic": {
+      "type": "basic"
+    }
+  }
+}
