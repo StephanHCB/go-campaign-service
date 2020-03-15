@@ -2,8 +2,7 @@ package configuration
 
 import (
 	"github.com/StephanHCB/go-autumn-config"
-	"log"
-	// "github.com/rs/zerolog/log"
+	"github.com/rs/zerolog/log"
 )
 
 // initialize configuration with full setup - you need to call this
@@ -14,11 +13,9 @@ func Setup() {
 
 func fail(err error) {
 	// this will os.exit 1
-	// log.Fatal().Err(err)
-	panic(err)
+	log.Fatal().Err(err)
 }
 
 func warn(message string) {
-	// log.Warn().Msg(message)
-	log.Print(message)
+	log.Warn().Msg(message)
 }

@@ -8,6 +8,7 @@ require (
 	github.com/StephanHCB/go-autumn-web-swagger-ui v0.1.1
 	github.com/go-chi/chi v4.0.3+incompatible
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
+	github.com/rs/zerolog v1.18.0
 	github.com/spf13/viper v1.6.2
 	github.com/stretchr/testify v1.5.1
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
