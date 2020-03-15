@@ -13,4 +13,6 @@ type Repository interface {
 	AddCampaign(ctx context.Context, a *entity.Campaign) (uint, error)
 	UpdateCampaign(ctx context.Context, a *entity.Campaign) error
 	GetCampaignById(ctx context.Context, id uint) (*entity.Campaign, error)
+
+	CountCampaignsBySubject(ctx context.Context, subject string) (uint, error)
 }

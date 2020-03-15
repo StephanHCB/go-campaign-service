@@ -1,5 +1,7 @@
 package campaign
 
+import "net/http"
+
 // --- models ---
 
 // Model for CampaignDto.
@@ -91,9 +93,9 @@ type CampaignApi interface {
 	//   400: errorResponse
 	//   401: errorResponse
 	//   403: errorResponse
-	CreateCampaign()
+	CreateCampaign(w http.ResponseWriter, r *http.Request)
 
-	// swagger:route POST /api/rest/v1/campaigns/{id} campaign-tag updateCampaignParams
+	// swagger:route POST /api/rest/v1/campaigns/{Id} campaign-tag updateCampaignParams
 	// This will update an existing campaign
 	//
 	// responses:
@@ -102,9 +104,9 @@ type CampaignApi interface {
 	//   401: errorResponse
 	//   403: errorResponse
 	//   404: errorResponse
-	UpdateCampaign()
+	UpdateCampaign(w http.ResponseWriter, r *http.Request)
 
-	// swagger:route GET /api/rest/v1/campaigns/{id} campaign-tag getCampaignParams
+	// swagger:route GET /api/rest/v1/campaigns/{Id} campaign-tag getCampaignParams
 	// This will return an existing campaign
 	//
 	// responses:
@@ -112,5 +114,5 @@ type CampaignApi interface {
 	//   401: errorResponse
 	//   403: errorResponse
 	//   404: errorResponse
-	GetCampaign()
+	GetCampaign(w http.ResponseWriter, r *http.Request)
 }

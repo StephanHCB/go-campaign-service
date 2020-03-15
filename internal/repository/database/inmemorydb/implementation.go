@@ -72,6 +72,10 @@ func (r *InMemoryRepository) GetCampaignById(ctx context.Context, id uint) (*ent
 	}
 }
 
+func (r *InMemoryRepository) CountCampaignsBySubject(ctx context.Context, subject string) (uint, error) {
+	return r.countBySubjectExcludingId(subject, 0), nil
+}
+
 // helper to implement uniqueness of Subject
 
 func (r *InMemoryRepository) countBySubjectExcludingId(subject string, ignoreId uint) uint {

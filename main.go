@@ -14,7 +14,8 @@ func main() {
 
 	database.Open()
 	defer database.Close()
-	database.MigrateIfSwitchedOn()
+	database.MigrateIfEnabled()
 
-	web.Serve()
+	server := web.Create()
+	web.Serve(server)
 }

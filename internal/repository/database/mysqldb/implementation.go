@@ -78,6 +78,15 @@ func (r *MysqlRepository) GetCampaignById(ctx context.Context, id uint) (*entity
 	return &a, err
 }
 
+func (r *MysqlRepository) CountCampaignsBySubject(ctx context.Context, subject string) (uint, error) {
+	var count uint
+	err := r.db.Table("campaigns").Where(&entity.Campaign{Subject: subject}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func fatal(err error, msg string) {
 	log.Fatal().Err(err).Msg(msg + ": " + err.Error())
 }

@@ -49,7 +49,7 @@
         }
       }
     },
-    "/api/rest/v1/campaigns/{id}": {
+    "/api/rest/v1/campaigns/{Id}": {
       "get": {
         "description": "This will return an existing campaign",
         "tags": [

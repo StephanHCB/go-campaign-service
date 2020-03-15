@@ -3,8 +3,11 @@ package web
 import (
 	"fmt"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/configuration"
+	"github.com/StephanHCB/go-campaign-service/internal/service/campaignsrv"
+	"github.com/StephanHCB/go-campaign-service/web/controller/campaignctl"
 	"github.com/StephanHCB/go-campaign-service/web/controller/swaggerctl"
-	"github.com/StephanHCB/go-campaign-service/web/middleware/logfilter"
+	"github.com/StephanHCB/go-campaign-service/web/middleware/ctxlogger"
+	"github.com/StephanHCB/go-campaign-service/web/middleware/requestlogging"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/rs/zerolog/log"
@@ -20,16 +23,28 @@ func fail(err error) {
 	log.Fatal().Err(err).Msg(err.Error())
 }
 
-func Serve() {
+func Create() chi.Router {
+	log.Info().Msg("Creating router and setting up filter chain")
 	server := chi.NewRouter()
 
 	server.Use(middleware.RequestID)
 
 	server.Use(middleware.Logger)
-	logfilter.Setup()
+	requestlogging.Setup()
+
+	server.Use(ctxlogger.AddZerologLoggerToContext)
+
+
+	log.Info().Msg("Setting up routes")
+
+	_ = campaignctl.Create(server, campaignsrv.Create())
 
 	swaggerctl.SetupSwaggerRoutes(server)
 
+	return server
+}
+
+func Serve(server chi.Router) {
 	address := configuration.ServerAddress()
 	log.Info().Msg("Starting web server on " + address)
 	err := http.ListenAndServe(address, server)

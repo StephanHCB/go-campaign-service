@@ -1,5 +1,5 @@
 // overriding parts of chi's middleware.Logger because we want to use zerolog
-package logfilter
+package requestlogging
 
 import (
 	"github.com/go-chi/chi/middleware"

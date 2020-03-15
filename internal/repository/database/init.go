@@ -41,7 +41,7 @@ func Close() {
 	SetRepository(nil)
 }
 
-func MigrateIfSwitchedOn() {
+func MigrateIfEnabled() {
 	if configuration.MigrateDatabase() {
 		infoFunc("Migrating database...")
 		GetRepository().Migrate()
