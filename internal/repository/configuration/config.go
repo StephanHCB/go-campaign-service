@@ -9,6 +9,7 @@ const configKeyServerAddress = "server.address"
 const configKeyServerPort = "server.port"
 const configKeyServiceName = "service.name"
 const configKeyDatabaseUse = "database.use"
+const configKeyDatabaseMigrate = "database.migrate"
 const configKeyDatabaseMysqlUsername = "database.mysql.username"
 const configKeyDatabaseMysqlPassword = "database.mysql.password"
 const configKeyDatabaseMysqlDatabase = "database.mysql.database"
@@ -40,6 +41,11 @@ var configItems = []auconfigapi.ConfigItem{
 		Default:     "inmemory",
 		Description: "choice of database, either 'mysql' or 'inmemory'",
 		Validate:    func(key string) error { return checkEnum(key, configAllowedDatabases) },
+	}, {
+		Key:         configKeyDatabaseMigrate,
+		Default:     false,
+		Description: "automatically migrate the database, boolean, defaults to false",
+		Validate:    auconfigapi.ConfigNeedsNoValidation,
 	}, {
 		Key:         configKeyDatabaseMysqlUsername,
 		Default:     "",
