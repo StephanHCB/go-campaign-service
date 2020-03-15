@@ -19,14 +19,3 @@ func IsProfileActive(profileName string) bool {
 	profiles := viper.GetStringSlice("profiles")
 	return contains(profiles, profileName)
 }
-
-// helper functions
-
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
-}

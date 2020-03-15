@@ -17,7 +17,7 @@ var failFunction = fail
 
 func fail(err error) {
 	// this does os.exit 1
-	log.Fatal().Err(err)
+	log.Fatal().Err(err).Msg(err.Error())
 }
 
 func Serve() {

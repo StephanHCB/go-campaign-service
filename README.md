@@ -49,8 +49,18 @@ used by the automated tests.
 If you would like to instead use a mysql database, and thus retain your data between runs, add something
 like this to your `config.yaml`:
 
-```
-TODO: mysql configuration docs
+```yaml
+database:
+  use: 'mysql' # defaults to 'inmemory'
+  mysql:
+    username: 'demouser'
+    password: 'demopw'
+    database: 'tcp(localhost:3306)/dbname'
+    parameters:
+      - 'charset=utf8mb4'
+      - 'collation=utf8mb4_general_ci'
+      - 'parseTime=True'
+      - 'timeout=30s' # connection timeout
 ```
 
 ### Running the Automated Tests

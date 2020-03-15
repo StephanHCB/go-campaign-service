@@ -17,10 +17,14 @@ var warnFunction = func(msg string) {
 	recordedWarnings = append(recordedWarnings, msg)
 }
 
-func tstSetup(address string, port uint) {
+func tstSetupBlank() {
 	recordedErrors = nil
 	recordedWarnings = nil
 	auconfig.SetupDefaultsOnly(configItems, failFunction, warnFunction)
+}
+
+func tstSetup(address string, port uint) {
+	tstSetupBlank()
 	viper.Set(configKeyServerAddress, address)
 	viper.Set(configKeyServerPort, port)
 }
@@ -69,6 +73,23 @@ func TestCheckValidPortNumber_TooHigh(t *testing.T) {
 
 	err := checkValidPortNumber(configKeyServerPort)
 	expectedMessage := "Fatal error: configuration value for key server.port is not in range 1024..65535\n"
+	require.NotNil(t, err)
+	require.Equal(t, expectedMessage, err.Error())
+}
+
+func TestCheckEnum_Success(t *testing.T) {
+	tstSetupBlank()
+
+	err := checkEnum(configKeyDatabaseUse, configAllowedDatabases)
+	require.Nil(t, err)
+}
+
+func TestCheckEnum_Error(t *testing.T) {
+	tstSetupBlank()
+	viper.Set(configKeyDatabaseUse, "tiger")
+
+	err := checkEnum(configKeyDatabaseUse, configAllowedDatabases)
+	expectedMessage := "Fatal error: configuration value for key database.use is not in allowed values [mysql inmemory]\n"
 	require.NotNil(t, err)
 	require.Equal(t, expectedMessage, err.Error())
 }

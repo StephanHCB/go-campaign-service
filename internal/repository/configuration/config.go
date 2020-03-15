@@ -8,6 +8,13 @@ import (
 const configKeyServerAddress = "server.address"
 const configKeyServerPort = "server.port"
 const configKeyServiceName = "service.name"
+const configKeyDatabaseUse = "database.use"
+const configKeyDatabaseMysqlUsername = "database.mysql.username"
+const configKeyDatabaseMysqlPassword = "database.mysql.password"
+const configKeyDatabaseMysqlDatabase = "database.mysql.database"
+const configKeyDatabaseMysqlParameters = "database.mysql.parameters"
+
+var configAllowedDatabases = []string{"mysql", "inmemory"}
 
 var configItems = []auconfigapi.ConfigItem{
 	auconfig.ConfigItemProfile,
@@ -26,5 +33,32 @@ var configItems = []auconfigapi.ConfigItem{
 		Default:     "unnamed-service",
 		Description: "name of service, used for logging",
 		Validate:    func(key string) error { return checkLength(1, 255, key) },
+	},
+	// database configuration
+	{
+		Key:         configKeyDatabaseUse,
+		Default:     "inmemory",
+		Description: "choice of database, either 'mysql' or 'inmemory'",
+		Validate:    func(key string) error { return checkEnum(key, configAllowedDatabases) },
+	}, {
+		Key:         configKeyDatabaseMysqlUsername,
+		Default:     "",
+		Description: "username to connect to database",
+		Validate:    auconfigapi.ConfigNeedsNoValidation,
+	}, {
+		Key:         configKeyDatabaseMysqlPassword,
+		Default:     "",
+		Description: "password to connect to database",
+		Validate:    auconfigapi.ConfigNeedsNoValidation,
+	}, {
+		Key:         configKeyDatabaseMysqlDatabase,
+		Default:     "tcp(localhost:3306)/dbname",
+		Description: "database connect string",
+		Validate:    auconfigapi.ConfigNeedsNoValidation,
+	}, {
+		Key:         configKeyDatabaseMysqlParameters,
+		Default:     []string{},
+		Description: "list of database connection parameters",
+		Validate:    auconfigapi.ConfigNeedsNoValidation,
 	},
 }

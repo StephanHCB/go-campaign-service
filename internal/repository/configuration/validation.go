@@ -20,3 +20,11 @@ func checkValidPortNumber(key string) error {
 	}
 	return nil
 }
+
+func checkEnum(key string, allowedValues []string) error {
+	value := viper.GetString(key)
+	if !contains(allowedValues, value) {
+		return fmt.Errorf("Fatal error: configuration value for key %s is not in allowed values %v\n", key, allowedValues)
+	}
+	return nil
+}
