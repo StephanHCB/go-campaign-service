@@ -28,13 +28,13 @@ func (s *CampaignServiceImpl) CreateCampaign(ctx context.Context, campaign *enti
 		return 0, err
 	}
 	if alreadyExists {
-		log.Ctx(ctx).Warn().Msgf("received new campaign duplicate - subject %v", campaign.Subject)
+		log.Ctx(ctx).Warn().Msgf("received new campaign duplicate - subject: %v", campaign.Subject)
 		return 0, errors.New("duplicate campaign data - same subject")
 	}
 
 	err = validate(campaign)
 	if err != nil {
-		log.Ctx(ctx).Warn().Msgf("business validation for campaign failed - rejected", err.Error())
+		log.Ctx(ctx).Warn().Msgf("business validation for campaign failed - rejected: %v", err.Error())
 		return 0, err
 	}
 
@@ -48,7 +48,7 @@ func (s *CampaignServiceImpl) CreateCampaign(ctx context.Context, campaign *enti
 func (s *CampaignServiceImpl) UpdateCampaign(ctx context.Context, campaign *entity.Campaign) error {
 	err := validate(campaign)
 	if err != nil {
-		log.Ctx(ctx).Warn().Msgf("business validation for campaign update failed - changes rejected", err.Error())
+		log.Ctx(ctx).Warn().Msgf("business validation for campaign update failed - changes rejected: %v", err.Error())
 		return err
 	}
 

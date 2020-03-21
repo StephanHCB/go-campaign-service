@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"bytes"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/configuration"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -27,4 +28,12 @@ func PostConfigSetup() {
 		// stay with JSON logging and add ECS service.id field
 		log.Logger = log.With().Str("service.id", configuration.ServiceName()).Logger()
 	}
+}
+
+var RecordedLogForTesting = new(bytes.Buffer)
+
+// alternative Setup function for testing that records log entries instead of writing them to console
+func SetupForTesting() {
+	Setup()
+	log.Logger = zerolog.New(RecordedLogForTesting).With().Timestamp().Logger()
 }

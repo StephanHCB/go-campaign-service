@@ -5,6 +5,7 @@ import (
 	"github.com/StephanHCB/go-campaign-service/internal/repository/configuration"
 	"github.com/StephanHCB/go-campaign-service/internal/service/campaignsrv"
 	"github.com/StephanHCB/go-campaign-service/web/controller/campaignctl"
+	"github.com/StephanHCB/go-campaign-service/web/controller/healthctl"
 	"github.com/StephanHCB/go-campaign-service/web/controller/swaggerctl"
 	"github.com/StephanHCB/go-campaign-service/web/middleware/ctxlogger"
 	"github.com/StephanHCB/go-campaign-service/web/middleware/requestlogging"
@@ -38,6 +39,8 @@ func Create() chi.Router {
 	log.Info().Msg("Setting up routes")
 
 	_ = campaignctl.Create(server, campaignsrv.Create())
+
+	healthctl.Create(server)
 
 	swaggerctl.SetupSwaggerRoutes(server)
 

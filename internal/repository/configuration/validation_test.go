@@ -47,7 +47,7 @@ func TestCheckLength_ShouldFailIfTooLong(t *testing.T) {
 	tstSetup("123456789012345678901", 8080)
 
 	err := checkLength(0, 20, configKeyServerAddress)
-	expectedMessage := "Fatal error: configuration value for key server.address must be between 0 and 20 characters long\n"
+	expectedMessage := "Fatal error: configuration value for key server.address must be between 0 and 20 characters long"
 	require.NotNil(t, err)
 	require.Equal(t, expectedMessage, err.Error())
 }
@@ -63,7 +63,7 @@ func TestCheckValidPortNumber_TooLow(t *testing.T) {
 	tstSetup("", 443)
 
 	err := checkValidPortNumber(configKeyServerPort)
-	expectedMessage := "Fatal error: configuration value for key server.port is not in range 1024..65535\n"
+	expectedMessage := "Fatal error: configuration value for key server.port is not in range 1024..65535"
 	require.NotNil(t, err)
 	require.Equal(t, expectedMessage, err.Error())
 }
@@ -72,7 +72,7 @@ func TestCheckValidPortNumber_TooHigh(t *testing.T) {
 	tstSetup("", 65536)
 
 	err := checkValidPortNumber(configKeyServerPort)
-	expectedMessage := "Fatal error: configuration value for key server.port is not in range 1024..65535\n"
+	expectedMessage := "Fatal error: configuration value for key server.port is not in range 1024..65535"
 	require.NotNil(t, err)
 	require.Equal(t, expectedMessage, err.Error())
 }
@@ -89,7 +89,7 @@ func TestCheckEnum_Error(t *testing.T) {
 	viper.Set(configKeyDatabaseUse, "tiger")
 
 	err := checkEnum(configKeyDatabaseUse, configAllowedDatabases)
-	expectedMessage := "Fatal error: configuration value for key database.use is not in allowed values [mysql inmemory]\n"
+	expectedMessage := "Fatal error: configuration value for key database.use is not in allowed values [mysql inmemory]"
 	require.NotNil(t, err)
 	require.Equal(t, expectedMessage, err.Error())
 }

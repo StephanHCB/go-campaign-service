@@ -8,7 +8,7 @@ import (
 func checkLength(min int, max int, key string) error {
 	value := viper.GetString(key)
 	if len(value) < min || len(value) > max {
-		return fmt.Errorf("Fatal error: configuration value for key %s must be between %d and %d characters long\n", key, min, max)
+		return fmt.Errorf("Fatal error: configuration value for key %s must be between %d and %d characters long", key, min, max)
 	}
 	return nil
 }
@@ -16,7 +16,7 @@ func checkLength(min int, max int, key string) error {
 func checkValidPortNumber(key string) error {
 	port := viper.GetUint(key)
 	if port < 1024 || port > 65535 {
-		return fmt.Errorf("Fatal error: configuration value for key %s is not in range 1024..65535\n", key)
+		return fmt.Errorf("Fatal error: configuration value for key %s is not in range 1024..65535", key)
 	}
 	return nil
 }
@@ -24,7 +24,7 @@ func checkValidPortNumber(key string) error {
 func checkEnum(key string, allowedValues []string) error {
 	value := viper.GetString(key)
 	if !contains(allowedValues, value) {
-		return fmt.Errorf("Fatal error: configuration value for key %s is not in allowed values %v\n", key, allowedValues)
+		return fmt.Errorf("Fatal error: configuration value for key %s is not in allowed values %v", key, allowedValues)
 	}
 	return nil
 }
