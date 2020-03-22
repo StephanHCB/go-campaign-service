@@ -82,8 +82,6 @@ type CampaignDataResponse struct {
 
 // --- routes ---
 
-// TODO add context parameters determined by the web framework
-
 type CampaignApi interface {
 	// swagger:route PUT /api/rest/v1/campaigns campaign-tag createCampaignParams
 	// This will create a new campaign and return its location
