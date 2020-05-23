@@ -7,6 +7,7 @@ import (
 	"github.com/StephanHCB/go-campaign-service/web/controller/campaignctl"
 	"github.com/StephanHCB/go-campaign-service/web/controller/healthctl"
 	"github.com/StephanHCB/go-campaign-service/web/controller/swaggerctl"
+	"github.com/StephanHCB/go-campaign-service/web/middleware/authentication"
 	"github.com/StephanHCB/go-campaign-service/web/middleware/ctxlogger"
 	"github.com/StephanHCB/go-campaign-service/web/middleware/requestlogging"
 	"github.com/go-chi/chi"
@@ -35,6 +36,8 @@ func Create() chi.Router {
 
 	server.Use(ctxlogger.AddZerologLoggerToContext)
 
+	// TODO secret should come from configuration
+	server.Use(authentication.AddJWTTokenInfoToContext("hallo"))
 
 	log.Info().Msg("Setting up routes")
 
