@@ -7,6 +7,7 @@ import (
 	"github.com/StephanHCB/go-campaign-service/api/v1/apierrors"
 	"github.com/StephanHCB/go-campaign-service/api/v1/campaign"
 	"github.com/StephanHCB/go-campaign-service/internal/service/campaignsrv"
+	"github.com/StephanHCB/go-campaign-service/web/middleware/authentication"
 	"github.com/StephanHCB/go-campaign-service/web/util/media"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -35,6 +36,19 @@ func (c *CampaignControllerImpl) SetupRoutes(server chi.Router) {
 
 func (c *CampaignControllerImpl) CreateCampaign(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+
+	// check authentication and role - in a real world scenario we would place these checks in a middleware
+	// with a list of allowed url patterns
+	err := authentication.CheckUserIsLoggedIn(ctx)
+	if err != nil {
+		campaignUnauthenticatedErrorHandler(ctx, w, r, err)
+		return
+	}
+	err = authentication.CheckUserHasRole(ctx, "admin")
+	if err != nil {
+		campaignUnauthorizedErrorHandler(ctx, w, r, err)
+		return
+	}
 
 	dto, err := parseBodyToCampaignDto(ctx, w, r)
 	if err != nil {
@@ -139,6 +153,16 @@ func parseBodyToCampaignDto(ctx context.Context, w http.ResponseWriter, r *http.
 		dto = &campaign.CampaignDto{}
 	}
 	return dto, err
+}
+
+func campaignUnauthenticatedErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) {
+	log.Ctx(ctx).Warn().Msgf("SECURITY: Unauthenticated call: %v", err)
+	errorHandler(ctx, w, r, "campaign.security.error", http.StatusUnauthorized, []string{})
+}
+
+func campaignUnauthorizedErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) {
+	log.Ctx(ctx).Warn().Msgf("SECURITY: Unauthorized call: %v", err)
+	errorHandler(ctx, w, r, "campaign.security.error", http.StatusForbidden, []string{})
 }
 
 func campaignParseErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) {

@@ -36,8 +36,7 @@ func Create() chi.Router {
 
 	server.Use(ctxlogger.AddZerologLoggerToContext)
 
-	// TODO secret should come from configuration
-	server.Use(authentication.AddJWTTokenInfoToContext("hallo"))
+	server.Use(authentication.AddJWTTokenInfoToContext(configuration.SecuritySecret()))
 
 	log.Info().Msg("Setting up routes")
 

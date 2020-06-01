@@ -41,3 +41,7 @@ func DatabaseMysqlConnectString() string {
 func MigrateDatabase() bool {
 	return viper.GetBool(configKeyDatabaseMigrate)
 }
+
+func SecuritySecret() string {
+	return viper.GetString(configKeySecuritySecret)
+}

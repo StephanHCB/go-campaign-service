@@ -14,6 +14,7 @@ const configKeyDatabaseMysqlUsername = "database.mysql.username"
 const configKeyDatabaseMysqlPassword = "database.mysql.password"
 const configKeyDatabaseMysqlDatabase = "database.mysql.database"
 const configKeyDatabaseMysqlParameters = "database.mysql.parameters"
+const configKeySecuritySecret = "security.secret"
 
 var configAllowedDatabases = []string{"mysql", "inmemory"}
 
@@ -66,5 +67,12 @@ var configItems = []auconfigapi.ConfigItem{
 		Default:     []string{},
 		Description: "list of database connection parameters",
 		Validate:    auconfigapi.ConfigNeedsNoValidation,
+	},
+	// security configuration
+	{
+		Key:         configKeySecuritySecret,
+		Default:     "",
+		Description: "secret used for signing jwt tokens",
+		Validate:    func(key string) error { return checkLength(1, 255, key) },
 	},
 }
