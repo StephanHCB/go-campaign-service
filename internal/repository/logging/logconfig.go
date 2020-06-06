@@ -22,7 +22,7 @@ func Setup() {
 
 func PostConfigSetup() {
 	if configuration.IsProfileActive("local") {
-		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, NoColor: true})
 		log.Info().Msg("switching to developer friendly console log because profile 'local' is active")
 	} else {
 		// stay with JSON logging and add ECS service.id field
