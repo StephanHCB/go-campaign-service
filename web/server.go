@@ -29,6 +29,7 @@ func Create() chi.Router {
 	log.Info().Msg("Creating router and setting up filter chain")
 	server := chi.NewRouter()
 
+	middleware.RequestIDHeader = "X-B3-TraceId"
 	server.Use(middleware.RequestID)
 
 	server.Use(middleware.Logger)
