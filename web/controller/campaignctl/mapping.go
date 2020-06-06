@@ -42,3 +42,13 @@ func mapRecipientToDto(r *entity.Recipient, dto *campaign.RecipientDto) {
 	dto.ToAddress = r.ToAddress
 }
 
+func mapResultMapToExecutionResultDto(r map[string]bool, dto *campaign.ExecutionResultDto) {
+	dto.Results = []campaign.SingleExecutionResultDto{}
+	for k, v := range r {
+		entry := campaign.SingleExecutionResultDto{
+			ToAddress: k,
+			Success:   v,
+		}
+		dto.Results = append(dto.Results, entry)
+	}
+}

@@ -24,6 +24,24 @@ type RecipientDto struct {
 	ToAddress string `json:"to_address"`
 }
 
+// Model for ExecutionResultDto.
+//
+// swagger:model executionResultDto
+type ExecutionResultDto struct {
+	Results []SingleExecutionResultDto `json:"results"`
+}
+
+// Model for SingleExecutionResultDto.
+//
+// swagger:model singleExecutionResultDto
+type SingleExecutionResultDto struct {
+	// The email address to send to
+	ToAddress string `json:"to_address"`
+
+	// Whether sending was successful
+	Success bool `json:"success"`
+}
+
 // --- parameters and responses --- needed to use models
 
 // Parameters for creating a Campaign
@@ -49,10 +67,10 @@ type UpdateCampaignParams struct {
 	Body CampaignDto
 }
 
-// Parameters for fetching a Campaign
+// Parameters for fetching or addressing a Campaign
 //
-// swagger:parameters getCampaignParams
-type GetCampaignParams struct {
+// swagger:parameters addressCampaignParams
+type AddressCampaignParams struct {
 	// The id of the campaign
 	//
 	// in:path
@@ -80,6 +98,19 @@ type CampaignDataResponse struct {
 	Body CampaignDto
 }
 
+// The campaign execution response including a Location header and the list of addresses
+//
+// swagger:response campaignExecutionResponse
+type CampaignExecutionResponse struct {
+	// Location header
+	Location string `json:"Location"`
+
+	// The data of the campaign
+	//
+	// in:body
+	Body ExecutionResultDto
+}
+
 // --- routes ---
 
 type CampaignApi interface {
@@ -104,7 +135,7 @@ type CampaignApi interface {
 	//   404: errorResponse
 	UpdateCampaign(w http.ResponseWriter, r *http.Request)
 
-	// swagger:route GET /api/rest/v1/campaigns/{Id} campaign-tag getCampaignParams
+	// swagger:route GET /api/rest/v1/campaigns/{Id} campaign-tag addressCampaignParams
 	// This will return an existing campaign
 	//
 	// responses:
@@ -113,4 +144,16 @@ type CampaignApi interface {
 	//   403: errorResponse
 	//   404: errorResponse
 	GetCampaign(w http.ResponseWriter, r *http.Request)
+
+	// swagger:route POST /api/rest/v1/campaigns/{Id}/execute campaign-tag addressCampaignParams
+	// This will execute a campaign, that is send emails using the mailer service.
+	//
+	// responses:
+	//   200: campaignExecutionResponse
+	//   400: errorResponse
+	//   401: errorResponse
+	//   403: errorResponse
+	//   404: errorResponse
+	//   502: errorResponse
+	ExecuteCampaign(w http.ResponseWriter, r *http.Request)
 }

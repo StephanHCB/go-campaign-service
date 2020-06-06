@@ -67,6 +67,16 @@ func (s *CampaignServiceImpl) GetCampaign(ctx context.Context, id uint) (*entity
 	return campaign, err
 }
 
+func (s *CampaignServiceImpl) ExecuteCampaign(ctx context.Context, campaign *entity.Campaign) (map[string]bool, error) {
+	result := map[string]bool{}
+	for _, recipient := range campaign.Recipients {
+		log.Ctx(ctx).Info().Msgf("sending email subject '%s' to '%s' (NOT IMPLEMENTED YET)", campaign.Subject, recipient.ToAddress)
+		// TODO actually send the email
+		result[recipient.ToAddress] = true
+	}
+	return result, nil
+}
+
 func (s *CampaignServiceImpl) isDuplicate(ctx context.Context, subject string, expectedCount uint) (bool, error) {
 	count, err := s.DbRepository.CountCampaignsBySubject(ctx, subject)
 	if err != nil {

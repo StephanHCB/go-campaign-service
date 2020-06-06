@@ -32,6 +32,7 @@ func (c *CampaignControllerImpl) SetupRoutes(server chi.Router) {
 	server.Put("/api/rest/v1/campaigns", c.CreateCampaign)
 	server.Post("/api/rest/v1/campaigns/{id:[1-9][0-9]*}", c.UpdateCampaign)
 	server.Get("/api/rest/v1/campaigns/{id:[1-9][0-9]*}", c.GetCampaign)
+	server.Post("/api/rest/v1/campaigns/{id:[1-9][0-9]*}/execute", c.ExecuteCampaign)
 }
 
 func (c *CampaignControllerImpl) CreateCampaign(w http.ResponseWriter, r *http.Request) {
@@ -136,6 +137,33 @@ func (c *CampaignControllerImpl) GetCampaign(w http.ResponseWriter, r *http.Requ
 	writeJson(ctx, w, dto)
 }
 
+func (c *CampaignControllerImpl) ExecuteCampaign(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	id, err := idFromVars(ctx, w, r)
+	if err != nil {
+		return
+	}
+	existingCampaign, err := c.s.GetCampaign(ctx, id)
+	if err != nil {
+		campaignNotFoundErrorHandler(ctx, w, r, id)
+		return
+	}
+
+	resultMap, err := c.s.ExecuteCampaign(ctx, existingCampaign)
+	if err != nil {
+		campaignExecutionGlobalErrorHandler(ctx, w, r, err, id)
+		return
+	}
+
+	dto := campaign.ExecutionResultDto{}
+	mapResultMapToExecutionResultDto(resultMap, &dto)
+
+	w.Header().Set(headers.Location, fmt.Sprintf("/api/rest/v1/campaigns/%d", id))
+	w.Header().Add(headers.ContentType, media.ContentTypeApplicationJson)
+	writeJson(ctx, w, dto)
+}
+
 func idFromVars(ctx context.Context, w http.ResponseWriter, r *http.Request) (uint, error) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -183,6 +211,11 @@ func invalidIdErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.R
 func campaignNotFoundErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, id uint) {
 	log.Ctx(ctx).Warn().Msgf("campaign id %v not found", id)
 	errorHandler(ctx, w, r, "campaign.id.notfound", http.StatusNotFound, []string{})
+}
+
+func campaignExecutionGlobalErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, err error, id uint) {
+	log.Ctx(ctx).Warn().Err(err).Msgf("campaign id %v execution error - mails were not sent: %v", id, err)
+	errorHandler(ctx, w, r, "campaign.execution.failed", http.StatusBadGateway, []string{err.Error()})
 }
 
 func campaignWriteErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) {

@@ -11,4 +11,6 @@ type CampaignService interface {
 	CreateCampaign(ctx context.Context, campaign *entity.Campaign) (uint, error)
 	UpdateCampaign(ctx context.Context, campaign *entity.Campaign) error
 	GetCampaign(ctx context.Context, id uint) (*entity.Campaign, error)
+
+	ExecuteCampaign(ctx context.Context, campaign *entity.Campaign) (map[string]bool, error)
 }

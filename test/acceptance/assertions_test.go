@@ -10,7 +10,7 @@ import (
 var ShouldDeepEqual = assertions.ShouldResemble
 
 // a custom assertion for GoConvey (can't believe they don't have this already?)
-func shouldMatchRegex(actual interface{}, expected ...interface{}) string {
+func ShouldMatchRegex(actual interface{}, expected ...interface{}) string {
 	match := matchRegexp(expected[0], actual)
 
 	if match {

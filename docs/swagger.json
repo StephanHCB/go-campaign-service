@@ -51,11 +51,11 @@
     },
     "/api/rest/v1/campaigns/{Id}": {
       "get": {
-        "description": "This will return an existing campaign",
         "tags": [
           "campaign-tag"
         ],
-        "operationId": "getCampaignParams",
+        "summary": "This will execute a campaign, that is send emails using the mailer service.",
+        "operationId": "addressCampaignParams",
         "parameters": [
           {
             "type": "string",
@@ -67,7 +67,10 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/responses/campaignDataResponse"
+            "$ref": "#/responses/campaignExecutionResponse"
+          },
+          "400": {
+            "$ref": "#/responses/errorResponse"
           },
           "401": {
             "$ref": "#/responses/errorResponse"
@@ -76,6 +79,9 @@
             "$ref": "#/responses/errorResponse"
           },
           "404": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "502": {
             "$ref": "#/responses/errorResponse"
           }
         }
@@ -117,6 +123,44 @@
             "$ref": "#/responses/errorResponse"
           },
           "404": {
+            "$ref": "#/responses/errorResponse"
+          }
+        }
+      }
+    },
+    "/api/rest/v1/campaigns/{Id}/execute": {
+      "post": {
+        "tags": [
+          "campaign-tag"
+        ],
+        "summary": "This will execute a campaign, that is send emails using the mailer service.",
+        "operationId": "addressCampaignParams",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The id of the campaign",
+            "name": "Id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/campaignExecutionResponse"
+          },
+          "400": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "404": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "502": {
             "$ref": "#/responses/errorResponse"
           }
         }
@@ -181,6 +225,21 @@
       "x-go-name": "ErrorDto",
       "x-go-package": "github.com/StephanHCB/go-campaign-service/api/v1/apierrors"
     },
+    "executionResultDto": {
+      "type": "object",
+      "title": "Model for ExecutionResultDto.",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/singleExecutionResultDto"
+          },
+          "x-go-name": "Results"
+        }
+      },
+      "x-go-name": "ExecutionResultDto",
+      "x-go-package": "github.com/StephanHCB/go-campaign-service/api/v1/campaign"
+    },
     "recipientDto": {
       "type": "object",
       "title": "Model for RecipientDto.",
@@ -193,6 +252,24 @@
       },
       "x-go-name": "RecipientDto",
       "x-go-package": "github.com/StephanHCB/go-campaign-service/api/v1/campaign"
+    },
+    "singleExecutionResultDto": {
+      "type": "object",
+      "title": "Model for SingleExecutionResultDto.",
+      "properties": {
+        "success": {
+          "description": "Whether sending was successful",
+          "type": "boolean",
+          "x-go-name": "Success"
+        },
+        "to_address": {
+          "description": "The email address to send to",
+          "type": "string",
+          "x-go-name": "ToAddress"
+        }
+      },
+      "x-go-name": "SingleExecutionResultDto",
+      "x-go-package": "github.com/StephanHCB/go-campaign-service/api/v1/campaign"
     }
   },
   "responses": {
@@ -200,6 +277,18 @@
       "description": "The campaign data response including a Location header",
       "schema": {
         "$ref": "#/definitions/campaignDto"
+      },
+      "headers": {
+        "Location": {
+          "type": "string",
+          "description": "Location header"
+        }
+      }
+    },
+    "campaignExecutionResponse": {
+      "description": "The campaign execution response including a Location header and the list of addresses",
+      "schema": {
+        "$ref": "#/definitions/executionResultDto"
       },
       "headers": {
         "Location": {

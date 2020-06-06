@@ -11,6 +11,8 @@ import (
 	"strings"
 )
 
+const tstEmailAddress = "test@mailinator.com"
+
 // placing these here because they are package global
 
 type tstWebResponse struct {
@@ -80,6 +82,22 @@ func tstPerformPut(relativeUrlWithLeadingSlash string, requestBody string, beare
 	return tstWebResponseFromResponse(response)
 }
 
+func tstPerformPost(relativeUrlWithLeadingSlash string, requestBody string, bearerToken string) (tstWebResponse, error) {
+	request, err := http.NewRequest(http.MethodPost, ts.URL+relativeUrlWithLeadingSlash, strings.NewReader(requestBody))
+	if err != nil {
+		return tstWebResponse{}, err
+	}
+	if bearerToken != "" {
+		request.Header.Set(headers.Authorization, "Bearer "+bearerToken)
+	}
+	request.Header.Set(headers.ContentType, media.ContentTypeApplicationJson)
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return tstWebResponse{}, err
+	}
+	return tstWebResponseFromResponse(response)
+}
+
 func tstReadCampaign(location string) (campaign.CampaignDto, error) {
 	readResponse, err := tstPerformGet(location, tstAuthAdmin())
 	if err != nil {
@@ -95,7 +113,7 @@ func tstBuildValidCampaign(testcase string) campaign.CampaignDto {
 		Subject: "Subject for " + testcase,
 		Body: "Body for " + testcase + "\n\nThis is some more text in the body\n",
 		Recipients: []campaign.RecipientDto{
-			{ToAddress: "test@mailinator.com"},
+			{ToAddress: tstEmailAddress},
 		},
 	}
 }
