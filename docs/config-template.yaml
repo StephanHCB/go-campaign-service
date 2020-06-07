@@ -13,3 +13,7 @@ database:
       - 'collation=utf8mb4_general_ci'
       - 'parseTime=True'
       - 'timeout=30s' # connection timeout
+downstream:
+  mailerservice:
+    url: 'http://localhost:8080/'
+    timeoutMs: 1000

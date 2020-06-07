@@ -45,3 +45,11 @@ func MigrateDatabase() bool {
 func SecuritySecret() string {
 	return viper.GetString(configKeySecuritySecret)
 }
+
+func MailerServiceUrl() string {
+	return viper.GetString(configKeyDownstreamMailerserviceUrl)
+}
+
+func MailerServiceTimeoutMs() uint {
+	return viper.GetUint(configKeyDownstreamMailerserviceTimeoutMs)
+}

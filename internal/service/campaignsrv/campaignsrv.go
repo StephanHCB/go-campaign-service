@@ -6,15 +6,20 @@ import (
 	"github.com/StephanHCB/go-campaign-service/internal/entity"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/database"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/database/dbrepo"
+	"github.com/StephanHCB/go-campaign-service/internal/repository/mailservice"
 	"github.com/rs/zerolog/log"
 )
 
 type CampaignServiceImpl struct {
-	DbRepository dbrepo.Repository
+	DbRepository         dbrepo.Repository
+	MailSenderRepository mailservice.MailSenderRepository
 }
 
-func Create() CampaignService {
-	service := &CampaignServiceImpl{DbRepository: database.GetRepository()}
+func Create(mailSender mailservice.MailSenderRepository) CampaignService {
+	service := &CampaignServiceImpl{
+		DbRepository: database.GetRepository(),
+		MailSenderRepository: mailSender,
+	}
 	return service
 }
 
@@ -70,9 +75,15 @@ func (s *CampaignServiceImpl) GetCampaign(ctx context.Context, id uint) (*entity
 func (s *CampaignServiceImpl) ExecuteCampaign(ctx context.Context, campaign *entity.Campaign) (map[string]bool, error) {
 	result := map[string]bool{}
 	for _, recipient := range campaign.Recipients {
-		log.Ctx(ctx).Info().Msgf("sending email subject '%s' to '%s' (NOT IMPLEMENTED YET)", campaign.Subject, recipient.ToAddress)
-		// TODO actually send the email
-		result[recipient.ToAddress] = true
+		log.Ctx(ctx).Info().Msgf("sending email subject '%s' to '%s'...", campaign.Subject, recipient.ToAddress)
+		err := s.MailSenderRepository.SendEmail(ctx, recipient.ToAddress, campaign.Subject, campaign.Body)
+		if err != nil {
+			log.Ctx(ctx).Error().Err(err).Msgf("sending email subject '%s' to '%s' FAILED: %s", campaign.Subject, recipient.ToAddress, err.Error())
+			result[recipient.ToAddress] = false
+		} else {
+			log.Ctx(ctx).Info().Msgf("sending email subject '%s' to '%s' successful", campaign.Subject, recipient.ToAddress)
+			result[recipient.ToAddress] = true
+		}
 	}
 	return result, nil
 }

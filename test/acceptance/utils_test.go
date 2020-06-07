@@ -126,7 +126,7 @@ func tstRenderJson(v interface{}) string {
 	return string(representationBytes)
 }
 
-// tip: dto := &attendee.AttendeeDto{}
+// tip: dto := &whatever.WhateverDto{}
 func tstParseJson(body string, dto interface{}) error {
 	err := json.Unmarshal([]byte(body), dto)
 	return err

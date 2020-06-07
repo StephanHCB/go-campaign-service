@@ -25,7 +25,7 @@ func fail(err error) {
 	log.Fatal().Err(err).Msg(err.Error())
 }
 
-func Create() chi.Router {
+func Create(campaignService campaignsrv.CampaignService) chi.Router {
 	log.Info().Msg("Creating router and setting up filter chain")
 	server := chi.NewRouter()
 
@@ -41,7 +41,7 @@ func Create() chi.Router {
 
 	log.Info().Msg("Setting up routes")
 
-	_ = campaignctl.Create(server, campaignsrv.Create())
+	_ = campaignctl.Create(server, campaignService)
 
 	healthctl.Create(server)
 

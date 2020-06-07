@@ -1,2 +1,5 @@
 server:
   port: "abd"
+downstream:
+  mailerservice:
+    url: 'http://localhost:8080/'

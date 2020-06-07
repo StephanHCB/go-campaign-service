@@ -21,6 +21,14 @@ func checkValidPortNumber(key string) error {
 	return nil
 }
 
+func checkUintRange(min uint, max uint, key string) error {
+	value := viper.GetUint(key)
+	if value < min || value > max {
+		return fmt.Errorf("Fatal error: configuration value for key %s is not in range %d..%d", key, min, max)
+	}
+	return nil
+}
+
 func checkEnum(key string, allowedValues []string) error {
 	value := viper.GetString(key)
 	if !contains(allowedValues, value) {

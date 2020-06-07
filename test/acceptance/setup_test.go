@@ -4,6 +4,8 @@ import (
 	"github.com/StephanHCB/go-campaign-service/internal/repository/configuration"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/database"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/logging"
+	"github.com/StephanHCB/go-campaign-service/internal/repository/mailservice/mailservicemock"
+	"github.com/StephanHCB/go-campaign-service/internal/service/campaignsrv"
 	"github.com/StephanHCB/go-campaign-service/web"
 	"net/http/httptest"
 )
@@ -50,7 +52,7 @@ func tstHadFailures() bool {
 }
 
 func tstSetupHttpTestServer() {
-	router := web.Create()
+	router := web.Create(campaignsrv.Create(mailservicemock.Create()))
 	ts = httptest.NewServer(router)
 }
 

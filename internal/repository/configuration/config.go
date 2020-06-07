@@ -15,6 +15,8 @@ const configKeyDatabaseMysqlPassword = "database.mysql.password"
 const configKeyDatabaseMysqlDatabase = "database.mysql.database"
 const configKeyDatabaseMysqlParameters = "database.mysql.parameters"
 const configKeySecuritySecret = "security.secret"
+const configKeyDownstreamMailerserviceUrl = "downstream.mailerservice.url"
+const configKeyDownstreamMailerserviceTimeoutMs = "downstream.mailerservice.timeoutMs"
 
 var configAllowedDatabases = []string{"mysql", "inmemory"}
 
@@ -74,5 +76,17 @@ var configItems = []auconfigapi.ConfigItem{
 		Default:     "",
 		Description: "secret used for signing jwt tokens",
 		Validate:    func(key string) error { return checkLength(1, 255, key) },
+	},
+	// downstream services configuration
+	{
+		Key:         configKeyDownstreamMailerserviceUrl,
+		Default:     "",
+		Description: "url to access the mailer-service",
+		Validate:    func(key string) error { return checkLength(1, 255, key) },
+	}, {
+		Key:         configKeyDownstreamMailerserviceTimeoutMs,
+		Default:     uint(2000),
+		Description: "timeout in milliseconds until calls are aborted",
+		Validate:    func(key string) error { return checkUintRange(100, 10000, key) },
 	},
 }
