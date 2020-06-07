@@ -9,6 +9,8 @@ import (
 	"github.com/StephanHCB/go-campaign-service/internal/repository/mailservice"
 	"github.com/StephanHCB/go-campaign-service/web/util/media"
 	"github.com/afex/hystrix-go/hystrix"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-http-utils/headers"
 	"github.com/rs/zerolog/log"
 	"io/ioutil"
 	"net/http"
@@ -21,6 +23,10 @@ type MailSenderRepositoryImpl struct {
 }
 
 const HystrixCommandName = "mailservice_send"
+
+const sendmailEndpoint = "api/rest/v1/sendmail"
+
+// --- instance creation ---
 
 func Create() mailservice.MailSenderRepository {
 	// configure circuit breaker
@@ -38,19 +44,26 @@ func Create() mailservice.MailSenderRepository {
 	}
 }
 
-const sendmailEndpoint = "api/rest/v1/sendmail"
-
-type EmailDto struct {
-	ToAddress string `json:"to_address"`
-	Subject   string `json:"subject"`
-	Body      string `json:"body"`
-}
+// --- low level http client interaction ---
 
 func (r *MailSenderRepositoryImpl) performPost(ctx context.Context, url string, requestBody string) (string, error) {
-	response, err := r.netClient.Post(url, media.ContentTypeApplicationJson, strings.NewReader(requestBody))
+	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(requestBody))
 	if err != nil {
 		return "", err
 	}
+
+	req.Header.Add(headers.ContentType, media.ContentTypeApplicationJson)
+
+	requestId := middleware.GetReqID(ctx)
+	if requestId != "" {
+		req.Header.Add(middleware.RequestIDHeader, requestId)
+	}
+
+	response, err := r.netClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
 	status := response.StatusCode
 	if status != http.StatusOK {
 		// still hand back the response body so an error message can potentially be extracted
@@ -65,14 +78,16 @@ func responseBodyString(response *http.Response) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	err = response.Body.Close()
 	if err != nil {
 		return "", err
 	}
+
 	return string(body), nil
 }
 
-// wrap low level call in circuit breaker
+// --- circuit breaker layer ---
 
 func (r *MailSenderRepositoryImpl) HystrixPerformPost(ctx context.Context, url string, requestBody string) (string, error) {
 	output := make(chan string, 1)
@@ -96,7 +111,13 @@ func (r *MailSenderRepositoryImpl) HystrixPerformPost(ctx context.Context, url s
 	return responseBody, err
 }
 
-// implementation of repository interface
+// --- implementation of repository interface ---
+
+type EmailDto struct {
+	ToAddress string `json:"to_address"`
+	Subject   string `json:"subject"`
+	Body      string `json:"body"`
+}
 
 func (r *MailSenderRepositoryImpl) SendEmail(ctx context.Context, address string, subject string, body string) error {
 	requestDto := EmailDto{
