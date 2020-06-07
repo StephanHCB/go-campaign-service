@@ -3,7 +3,6 @@ package mailserviceclient
 import (
 	"context"
 	"fmt"
-	"github.com/StephanHCB/go-campaign-service/api/v1/apierrors"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/configuration"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/mailservice"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/util/downstreamcall"
@@ -43,6 +42,12 @@ type EmailDto struct {
 	Body      string `json:"body"`
 }
 
+// intentionally leaving out fields to demo tolerant reader
+type ErrorDto struct {
+	RequestId string `json:"requestid"`
+	Message   string `json:"message"`
+}
+
 func (r *MailSenderRepositoryImpl) SendEmail(ctx context.Context, address string, subject string, body string) error {
 	requestDto := EmailDto{
 		ToAddress: address,
@@ -62,7 +67,7 @@ func (r *MailSenderRepositoryImpl) SendEmail(ctx context.Context, address string
 			err = fmt.Errorf("unexpected http status %d, was expecting %d", httpstatus, http.StatusOK)
 		}
 
-		errorResponseDto := &apierrors.ErrorDto{}
+		errorResponseDto := &ErrorDto{}
 		err2 := downstreamcall.ParseJson(responseBody, errorResponseDto)
 		if err2 == nil {
 			log.Ctx(ctx).Error().Err(err).Msgf("Error sending mail to '%s' via mailer-service: error from response is %s, local error is %s", address, errorResponseDto.Message, err.Error())

@@ -67,7 +67,7 @@ func hystrixPerformWithBody(ctx context.Context, hystrixCommandName string, meth
 
 		// if we return an error at this point, it will count towards opening the circuit breaker
 		if httpstatus >= 500 && innerErr == nil {
-			// so let's make any http status in the 500 range causes us to return an error
+			// so let's make sure any http status in the 500 range causes us to return an error
 			// in a real world situation this may need some more attention
 			innerErr = fmt.Errorf("got unexpected http status %d", httpstatus)
 		}
