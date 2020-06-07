@@ -6,6 +6,7 @@ require (
 	github.com/StephanHCB/go-autumn-config v0.2.0
 	github.com/StephanHCB/go-autumn-config-api v0.2.0
 	github.com/StephanHCB/go-autumn-web-swagger-ui v0.1.1
+	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5
 	github.com/auth0/go-jwt-middleware v0.0.0-20200507191422-d30d7b9ece63
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-chi/chi v4.0.3+incompatible
