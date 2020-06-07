@@ -2,19 +2,14 @@ package mailserviceclient
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/StephanHCB/go-campaign-service/api/v1/apierrors"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/configuration"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/mailservice"
-	"github.com/StephanHCB/go-campaign-service/web/util/media"
+	"github.com/StephanHCB/go-campaign-service/internal/repository/util/downstreamcall"
 	"github.com/afex/hystrix-go/hystrix"
-	"github.com/go-chi/chi/middleware"
-	"github.com/go-http-utils/headers"
 	"github.com/rs/zerolog/log"
-	"io/ioutil"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -44,71 +39,44 @@ func Create() mailservice.MailSenderRepository {
 	}
 }
 
-// --- low level http client interaction ---
-
-func (r *MailSenderRepositoryImpl) performPost(ctx context.Context, url string, requestBody string) (string, error) {
-	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(requestBody))
-	if err != nil {
-		return "", err
-	}
-
-	req.Header.Add(headers.ContentType, media.ContentTypeApplicationJson)
-
-	requestId := middleware.GetReqID(ctx)
-	if requestId != "" {
-		req.Header.Add(middleware.RequestIDHeader, requestId)
-	}
-
-	response, err := r.netClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-
-	status := response.StatusCode
-	if status != http.StatusOK {
-		// still hand back the response body so an error message can potentially be extracted
-		responseBody, _ := responseBodyString(response)
-		return responseBody, fmt.Errorf("got unexpected http status %v", status)
-	}
-	return responseBodyString(response)
-}
-
-func responseBodyString(response *http.Response) (string, error) {
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return "", err
-	}
-
-	err = response.Body.Close()
-	if err != nil {
-		return "", err
-	}
-
-	return string(body), nil
-}
-
 // --- circuit breaker layer ---
 
-func (r *MailSenderRepositoryImpl) HystrixPerformPost(ctx context.Context, url string, requestBody string) (string, error) {
-	output := make(chan string, 1)
+type responseInfo struct {
+	body   string
+	status int
+}
+
+func (r *MailSenderRepositoryImpl) hystrixPerformPOST(ctx context.Context, url string, requestBody string) (string, int, error) {
+	output := make(chan responseInfo, 1)
+
 	// hystrix.DoC blocks until either completed or error returned
 	err := hystrix.DoC(ctx, HystrixCommandName, func(subctx context.Context) error {
-		responseBody, innerErr := r.performPost(subctx, url, requestBody)
-		output <- responseBody
-		// note: if we return an error at this point, it will count towards opening the circuit breaker
+		responseBody, httpstatus, innerErr := downstreamcall.PerformPOST(subctx, r.netClient, url, requestBody)
+		output <- responseInfo{
+			body:   responseBody,
+			status: httpstatus,
+		}
+
+		// if we return an error at this point, it will count towards opening the circuit breaker
+		if httpstatus >= 500 && innerErr == nil {
+			// so let's make any http status in the 500 range causes us to return an error
+			// in a real world situation this may need some more attention
+			innerErr = fmt.Errorf("got unexpected http status %d", httpstatus)
+		}
 		return innerErr
 	}, nil)
 
+	responseData := responseInfo{}
+
 	// non-blocking receive for optional output
-	responseBody := ""
 	select {
 	case out := <-output:
-		responseBody = out
+		responseData = out
 	default:
 		// presence of default branch means select will not block even if none of the channels are ready to read from
 	}
 
-	return responseBody, err
+	return responseData.body, responseData.status, err
 }
 
 // --- implementation of repository interface ---
@@ -125,36 +93,27 @@ func (r *MailSenderRepositoryImpl) SendEmail(ctx context.Context, address string
 		Subject:   subject,
 		Body:      body,
 	}
-	requestBody, err := renderJson(requestDto)
+	requestBody, err := downstreamcall.RenderJson(requestDto)
 	if err != nil {
 		return err
 	}
 
-	responseBody, err := r.performPost(ctx, configuration.MailerServiceUrl() +sendmailEndpoint, requestBody)
-	if err != nil {
+	responseBody, httpstatus, err := r.hystrixPerformPOST(ctx, configuration.MailerServiceUrl()+sendmailEndpoint, requestBody)
+	if err != nil || httpstatus != http.StatusOK {
+		if err == nil {
+			err = fmt.Errorf("unexpected http status %d, was expecting %d", httpstatus, http.StatusOK)
+		}
+
 		errorResponseDto := &apierrors.ErrorDto{}
-		err2 := parseJson(responseBody, errorResponseDto)
+		err2 := downstreamcall.ParseJson(responseBody, errorResponseDto)
 		if err2 == nil {
 			log.Ctx(ctx).Error().Err(err).Msgf("Error sending mail to '%s' via mailer-service: error from response is %s, local error is %s", address, errorResponseDto.Message, err.Error())
 		} else {
-			log.Ctx(ctx).Error().Err(err).Msgf("Error sending mail to '%s' via mailer-service with no response available: local error is %s", address, err.Error())
+			log.Ctx(ctx).Error().Err(err).Msgf("Error sending mail to '%s' via mailer-service with no structured response available: local error is %s", address, err.Error())
 		}
+
 		return err
 	}
 
 	return nil
-}
-
-func renderJson(v interface{}) (string, error) {
-	representationBytes, err := json.Marshal(v)
-	if err != nil {
-		return "", err
-	}
-	return string(representationBytes), nil
-}
-
-// tip: dto := &whatever.WhateverDto{}
-func parseJson(body string, dto interface{}) error {
-	err := json.Unmarshal([]byte(body), dto)
-	return err
 }
