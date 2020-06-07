@@ -6,6 +6,8 @@ import (
 	"net/http"
 )
 
+const RequestIdLoggerFieldName = "request-id"
+
 func AddZerologLoggerToContext(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -15,7 +17,7 @@ func AddZerologLoggerToContext(next http.Handler) http.Handler {
 		path := r.URL.Path
 
 		sublogger := log.Logger.With().
-			Str("request-id", requestId).
+			Str(RequestIdLoggerFieldName, requestId).
 			Str("method", method).
 			Str("path", path).
 			Logger()
