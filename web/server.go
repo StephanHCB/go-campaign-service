@@ -9,6 +9,7 @@ import (
 	"github.com/StephanHCB/go-campaign-service/web/controller/swaggerctl"
 	"github.com/StephanHCB/go-campaign-service/web/middleware/authentication"
 	"github.com/StephanHCB/go-campaign-service/web/middleware/ctxlogger"
+	"github.com/StephanHCB/go-campaign-service/web/middleware/requestidinresponse"
 	"github.com/StephanHCB/go-campaign-service/web/middleware/requestlogging"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -36,6 +37,8 @@ func Create(campaignService campaignsrv.CampaignService) chi.Router {
 	requestlogging.Setup()
 
 	server.Use(ctxlogger.AddZerologLoggerToContext)
+
+	server.Use(requestidinresponse.AddRequestIdHeaderToResponse)
 
 	server.Use(authentication.AddJWTTokenInfoToContext(configuration.SecuritySecret()))
 
