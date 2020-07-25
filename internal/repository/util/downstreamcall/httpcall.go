@@ -2,6 +2,7 @@ package downstreamcall
 
 import (
 	"context"
+	"github.com/StephanHCB/go-campaign-service/web/middleware/authentication"
 	"github.com/StephanHCB/go-campaign-service/web/util/media"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-http-utils/headers"
@@ -44,6 +45,10 @@ func performWithBody(ctx context.Context, method string, httpClient *http.Client
 	requestId := middleware.GetReqID(ctx)
 	if requestId != "" {
 		req.Header.Set(middleware.RequestIDHeader, requestId)
+	}
+
+	if rawtoken, err := authentication.ExtractRawTokenFromContext(ctx); err == nil {
+		req.Header.Set(headers.Authorization, "Bearer " + rawtoken)
 	}
 
 	response, err := httpClient.Do(req)

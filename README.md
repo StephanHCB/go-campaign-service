@@ -84,17 +84,19 @@ See [go-mailer-service](https://github.com/StephanHCB/go-mailer-service/) for th
 ##### Solution Concept
 
 In order to automatically verify that any cross-service interaction will work as expected, we have 
-implemented the consumer side of a consumer driven contract test (see `test/contract/consumer/main_ctr_test.go`).
-
-```
-TODO implement a real world example
-```
+implemented the consumer side of a consumer driven contract test (see `test/contract/consumer/sendmail_ctr_test.go`).
 
 When the test suite of this client runs, the consumer side tests are run, and pact json files are written out to
 `test/contract/consumer/pacts`.
 
 _Note how the consumer test calls into a very low level function, the one that uses a httpclient to make the call,
-even below any circuit breaker etc. So we are not testing the business logic, only the actual technical client code._
+ideally even below any circuit breaker etc. So we are not testing the business logic, only the actual technical client code._
+
+_In this example, we simply call into the repository. This is not perfectly ideal, as failures in one contract
+test could open the circuit breaker and cause subsequent contract tests to fail. The upside is that we are using the
+exact same code paths during the test as during regular operation for rendering the request. In a real-world example one
+might add a configuration switch to skip the circuit breaker, then this approach is acceptable. Or, even better, extract 
+rendering the request into separate functions that can then be unit tested._
 
 When the test suite of the producer runs, it reads the pact json and uses it to replay the interaction.
 
@@ -131,5 +133,19 @@ Then do the same in the producer project.
 You should see output like this:
 
 ```
-TODO
+--- PASS: TestProvider (3.73s)
+=== RUN   TestProvider/Running_pact_test
+    --- PASS: TestProvider/Running_pact_test (0.00s)
+=== RUN   TestProvider/has_status_code_200
+    TestProvider/has_status_code_200: pact.go:626: Verifying a pact between CampaignService and MailService Given an authorized user with the admin role exists A request to send an email with POST /api/rest/v1/sendmail returns a response which has status code 200
+    --- PASS: TestProvider/has_status_code_200 (0.00s)
 ```
+
+##### Contract Testing Tutorial
+
+[pact-go tutorial](https://github.com/pact-foundation/pact-workshop-go) takes about 60 minutes
+and teaches you lots of little details.
+
+## TODO
+
+* only forward authentication if url in address whitelist (add to config) - TODO in httpcall.go

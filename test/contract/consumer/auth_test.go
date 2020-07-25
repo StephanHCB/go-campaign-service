@@ -1,0 +1,7 @@
+package consumer
+
+const validtoken_demosecret_HS256_admin = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJodHRwczovL2dpdGh1Yi5jb20vU3RlcGhhbkhDQi9nby1jYW1wYWlnbi1zZXJ2aWNlL3JvbGVzIjpbImFkbWluIl19.EZC_nxHsZKrNLK6BvFqJrgpqWMv8OnnjpxAwst3b9RA"
+
+func tstAuthAdmin() string {
+	return validtoken_demosecret_HS256_admin
+}

@@ -6,7 +6,8 @@
 
 # compile and test output
 *.exe
-test/contract/*/log/**
+test/contract/*/logs/**
+test/contract/*/pacts/**
 main
 
 # local configuration files
