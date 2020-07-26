@@ -17,6 +17,8 @@ const configKeyDatabaseMysqlParameters = "database.mysql.parameters"
 const configKeySecuritySecret = "security.secret"
 const configKeyDownstreamMailerserviceUrl = "downstream.mailerservice.url"
 const configKeyDownstreamMailerserviceTimeoutMs = "downstream.mailerservice.timeoutMs"
+const configKeyMetricsEnable = "metrics.listen.enable"
+const configKeyMetricsPort = "metrics.listen.port"
 
 var configAllowedDatabases = []string{"mysql", "inmemory"}
 
@@ -88,5 +90,17 @@ var configItems = []auconfigapi.ConfigItem{
 		Default:     uint(2000),
 		Description: "timeout in milliseconds until calls are aborted",
 		Validate:    func(key string) error { return checkUintRange(100, 10000, key) },
+	},
+	// metrics endpoint on seperate port configuration
+	{
+		Key:         configKeyMetricsEnable,
+		Default:     false,
+		Description: "enable separate metrics endpoint",
+		Validate:    auconfigapi.ConfigNeedsNoValidation,
+	}, {
+		Key:         configKeyMetricsPort,
+		Default:     ":9090",
+		Description: "metrics endpoint port, format (interface):port",
+		Validate:    auconfigapi.ConfigNeedsNoValidation,
 	},
 }

@@ -13,6 +13,7 @@ require (
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/jinzhu/gorm v1.9.12
 	github.com/pact-foundation/pact-go v1.4.3
+	github.com/prometheus/client_golang v1.7.1
 	github.com/rs/zerolog v1.18.0
 	github.com/smartystreets/assertions v1.1.0
 	github.com/smartystreets/goconvey v1.6.4

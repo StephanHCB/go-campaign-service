@@ -53,3 +53,11 @@ func MailerServiceUrl() string {
 func MailerServiceTimeoutMs() uint {
 	return viper.GetUint(configKeyDownstreamMailerserviceTimeoutMs)
 }
+
+func EnableMetricsEndpoint() bool {
+	return viper.GetBool(configKeyMetricsEnable)
+}
+
+func MetricsPort() string {
+	return viper.GetString(configKeyMetricsPort)
+}

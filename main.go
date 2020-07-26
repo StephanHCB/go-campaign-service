@@ -18,6 +18,8 @@ func main() {
 	defer database.Close()
 	database.MigrateIfEnabled()
 
+	web.StartMetricsServer()
+
 	server := web.Create(campaignsrv.Create(mailserviceclient.Create()))
 	web.Serve(server)
 }

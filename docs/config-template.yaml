@@ -17,3 +17,7 @@ downstream:
   mailerservice:
     url: 'http://localhost:8080/'
     timeoutMs: 1000
+metrics:
+  listen:
+    enable: true
+    port: ':9090'
