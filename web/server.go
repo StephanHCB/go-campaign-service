@@ -2,18 +2,18 @@ package web
 
 import (
 	"fmt"
+	aulogging "github.com/StephanHCB/go-autumn-logging"
+	"github.com/StephanHCB/go-autumn-logging-zerolog/loggermiddleware"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/configuration"
 	"github.com/StephanHCB/go-campaign-service/internal/service/campaignsrv"
 	"github.com/StephanHCB/go-campaign-service/web/controller/campaignctl"
 	"github.com/StephanHCB/go-campaign-service/web/controller/healthctl"
 	"github.com/StephanHCB/go-campaign-service/web/controller/swaggerctl"
 	"github.com/StephanHCB/go-campaign-service/web/middleware/authentication"
-	"github.com/StephanHCB/go-campaign-service/web/middleware/ctxlogger"
 	"github.com/StephanHCB/go-campaign-service/web/middleware/requestidinresponse"
 	"github.com/StephanHCB/go-campaign-service/web/middleware/requestlogging"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/rs/zerolog/log"
 	"net/http"
 )
 
@@ -23,11 +23,11 @@ var failFunction = fail
 
 func fail(err error) {
 	// this does os.exit 1
-	log.Fatal().Err(err).Msg(err.Error())
+	aulogging.Logger.NoCtx().Fatal().WithErr(err).Print(err.Error())
 }
 
 func Create(campaignService campaignsrv.CampaignService) chi.Router {
-	log.Info().Msg("Creating router and setting up filter chain")
+	aulogging.Logger.NoCtx().Info().Print("Creating router and setting up filter chain")
 	server := chi.NewRouter()
 
 	middleware.RequestIDHeader = "X-B3-TraceId"
@@ -36,13 +36,13 @@ func Create(campaignService campaignsrv.CampaignService) chi.Router {
 	server.Use(middleware.Logger)
 	requestlogging.Setup()
 
-	server.Use(ctxlogger.AddZerologLoggerToContext)
+	server.Use(loggermiddleware.AddZerologLoggerToContext)
 
 	server.Use(requestidinresponse.AddRequestIdHeaderToResponse)
 
 	server.Use(authentication.AddJWTTokenInfoToContext(configuration.SecuritySecret()))
 
-	log.Info().Msg("Setting up routes")
+	aulogging.Logger.NoCtx().Info().Print("Setting up routes")
 
 	_ = campaignctl.Create(server, campaignService)
 
@@ -55,7 +55,7 @@ func Create(campaignService campaignsrv.CampaignService) chi.Router {
 
 func Serve(server chi.Router) {
 	address := configuration.ServerAddress()
-	log.Info().Msg("Starting web server on " + address)
+	aulogging.Logger.NoCtx().Info().Print("Starting web server on " + address)
 	err := http.ListenAndServe(address, server)
 	if err != nil {
 		// TODO log a warning on intentional shutdown, and an error otherwise

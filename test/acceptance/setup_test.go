@@ -1,6 +1,7 @@
 package acceptance
 
 import (
+	auzerolog "github.com/StephanHCB/go-autumn-logging-zerolog"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/configuration"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/database"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/logging"
@@ -40,7 +41,7 @@ func tstWarn(msg string) {
 func tstSetupConfig(configPath string, secretsPath string) {
 	failures = []error{}
 	warnings = []string{}
-	logging.SetupForTesting()
+	auzerolog.SetupForTesting()
 	configuration.SetupForIntegrationTest(tstFail, tstWarn, configPath, secretsPath)
 	if !tstHadFailures() {
 		logging.PostConfigSetup()

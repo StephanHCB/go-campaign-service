@@ -3,10 +3,10 @@ package mailserviceclient
 import (
 	"context"
 	"fmt"
+	aulogging "github.com/StephanHCB/go-autumn-logging"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/configuration"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/mailservice"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/util/downstreamcall"
-	"github.com/rs/zerolog/log"
 	"net/http"
 	"time"
 )
@@ -70,9 +70,9 @@ func (r *MailSenderRepositoryImpl) SendEmail(ctx context.Context, address string
 		errorResponseDto := &ErrorDto{}
 		err2 := downstreamcall.ParseJson(responseBody, errorResponseDto)
 		if err2 == nil {
-			log.Ctx(ctx).Error().Err(err).Msgf("Error sending mail to '%s' via mailer-service: error from response is %s, local error is %s", address, errorResponseDto.Message, err.Error())
+			aulogging.Logger.Ctx(ctx).Error().WithErr(err).Printf("Error sending mail to '%s' via mailer-service: error from response is %s, local error is %s", address, errorResponseDto.Message, err.Error())
 		} else {
-			log.Ctx(ctx).Error().Err(err).Msgf("Error sending mail to '%s' via mailer-service with no structured response available: local error is %s", address, err.Error())
+			aulogging.Logger.Ctx(ctx).Error().WithErr(err).Printf("Error sending mail to '%s' via mailer-service with no structured response available: local error is %s", address, err.Error())
 		}
 
 		return err

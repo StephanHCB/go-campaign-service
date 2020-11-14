@@ -1,10 +1,11 @@
-// overriding parts of chi's middleware.Logger because we want to use zerolog
+// overriding parts of chi's middleware.Logger because we want to use go-autumn-logging
 package requestlogging
 
 import (
+	"fmt"
+	aulogging "github.com/StephanHCB/go-autumn-logging"
+	auloggingapi "github.com/StephanHCB/go-autumn-logging/api"
 	"github.com/go-chi/chi/middleware"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"net/http"
 	"time"
 )
@@ -47,24 +48,25 @@ type zerologLogEntry struct {
 func (l *zerologLogEntry) Write(status, bytes int, elapsed time.Duration) {
 	msg := "Request"
 
-	var e *zerolog.Event
+	ctxLogger := aulogging.Logger.Ctx(l.request.Context())
+	var e auloggingapi.LeveledLoggingImplementation
 	switch {
 	case status >= http.StatusBadRequest && status < http.StatusInternalServerError:
-		e = log.Warn()
+		e = ctxLogger.Warn()
 	case status >= http.StatusInternalServerError:
-		e = log.Error()
+		e = ctxLogger.Error()
 	default:
-		e = log.Info()
+		e = ctxLogger.Info()
 	}
 
-	e.Int("status", status).
-		Str("method", l.method).
-		Str("path", l.path).
-		Str("ip", l.ip).
-		Dur("latency", elapsed).
-		Str("user-agent", l.userAgent).
-		Str("request-id", l.requestId).
-		Msg(msg)
+	e.With("status", fmt.Sprintf("%d", status)).
+		With("method", l.method).
+		With("path", l.path).
+		With("ip", l.ip).
+		With("latency", fmt.Sprintf( "%d", elapsed.Milliseconds())).
+		With("user-agent", l.userAgent).
+		With("request-id", l.requestId).
+		Print(msg)
 }
 
 func (l *zerologLogEntry) Panic(v interface{}, stack []byte) {
@@ -72,12 +74,12 @@ func (l *zerologLogEntry) Panic(v interface{}, stack []byte) {
 
 	msg := "Request Panic"
 
-	e := log.Panic()
+	e := aulogging.Logger.NoCtx().Panic()
 
-	e.Str("method", panicEntry.method).
-		Str("path", panicEntry.path).
-		Str("ip", panicEntry.ip).
-		Str("user-agent", panicEntry.userAgent).
-		Str("request-id", panicEntry.requestId).
-		Msg(msg)
+	e.With("method", panicEntry.method).
+		With("path", panicEntry.path).
+		With("ip", panicEntry.ip).
+		With("user-agent", panicEntry.userAgent).
+		With("request-id", panicEntry.requestId).
+		Print(msg)
 }

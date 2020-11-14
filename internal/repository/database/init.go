@@ -1,11 +1,11 @@
 package database
 
 import (
+	aulogging "github.com/StephanHCB/go-autumn-logging"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/configuration"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/database/dbrepo"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/database/inmemorydb"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/database/mysqldb"
-	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -58,9 +58,9 @@ func GetRepository() dbrepo.Repository {
 }
 
 func info(msg string) {
-	log.Info().Msg(msg)
+	aulogging.Logger.NoCtx().Info().Print(msg)
 }
 
 func fatal(msg string) {
-	log.Fatal().Msg(msg)
+	aulogging.Logger.NoCtx().Fatal().Print(msg)
 }

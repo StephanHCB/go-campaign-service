@@ -2,12 +2,12 @@ package mysqldb
 
 import (
 	"context"
+	aulogging "github.com/StephanHCB/go-autumn-logging"
 	"github.com/StephanHCB/go-campaign-service/internal/entity"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/configuration"
 	"github.com/StephanHCB/go-campaign-service/internal/repository/database/dbrepo"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/rs/zerolog/log"
 	"time"
 )
 
@@ -88,13 +88,13 @@ func (r *MysqlRepository) CountCampaignsBySubject(ctx context.Context, subject s
 }
 
 func fatal(err error, msg string) {
-	log.Fatal().Err(err).Msg(msg + ": " + err.Error())
+	aulogging.Logger.NoCtx().Fatal().WithErr(err).Print(msg + ": " + err.Error())
 }
 
 func warn(ctx context.Context, err error, msg string) {
-	log.Ctx(ctx).Warn().Err(err).Msg(msg + ": " + err.Error())
+	aulogging.Logger.Ctx(ctx).Warn().WithErr(err).Print(msg + ": " + err.Error())
 }
 
 func info(ctx context.Context, err error, msg string) {
-	log.Ctx(ctx).Info().Err(err).Msg(msg + ": " + err.Error())
+	aulogging.Logger.Ctx(ctx).Info().WithErr(err).Print(msg + ": " + err.Error())
 }

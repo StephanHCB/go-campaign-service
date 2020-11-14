@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	aulogging "github.com/StephanHCB/go-autumn-logging"
 	"github.com/StephanHCB/go-campaign-service/api/v1/apierrors"
 	"github.com/StephanHCB/go-campaign-service/api/v1/campaign"
 	"github.com/StephanHCB/go-campaign-service/internal/service/campaignsrv"
@@ -12,7 +13,6 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-http-utils/headers"
-	"github.com/rs/zerolog/log"
 	"net/http"
 	"strconv"
 	"time"
@@ -77,7 +77,7 @@ func (c *CampaignControllerImpl) CreateCampaign(w http.ResponseWriter, r *http.R
 	}
 
 	location := fmt.Sprintf("%s/%d", r.RequestURI, id)
-	log.Ctx(ctx).Info().Msg("sending new Location " + location)
+	aulogging.Logger.Ctx(ctx).Info().Print("sending new Location " + location)
 	w.Header().Set(headers.Location, location)
 	w.WriteHeader(http.StatusCreated)
 }
@@ -184,42 +184,42 @@ func parseBodyToCampaignDto(ctx context.Context, w http.ResponseWriter, r *http.
 }
 
 func campaignUnauthenticatedErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) {
-	log.Ctx(ctx).Warn().Msgf("SECURITY: Unauthenticated call: %v", err)
+	aulogging.Logger.Ctx(ctx).Warn().Printf("SECURITY: Unauthenticated call: %v", err)
 	errorHandler(ctx, w, r, "campaign.security.error", http.StatusUnauthorized, []string{})
 }
 
 func campaignUnauthorizedErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) {
-	log.Ctx(ctx).Warn().Msgf("SECURITY: Unauthorized call: %v", err)
+	aulogging.Logger.Ctx(ctx).Warn().Printf("SECURITY: Unauthorized call: %v", err)
 	errorHandler(ctx, w, r, "campaign.security.error", http.StatusForbidden, []string{})
 }
 
 func campaignParseErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) {
-	log.Ctx(ctx).Warn().Err(err).Msgf("campaign body could not be parsed: %v", err)
+	aulogging.Logger.Ctx(ctx).Warn().WithErr(err).Printf("campaign body could not be parsed: %v", err)
 	errorHandler(ctx, w, r, "campaign.parse.error", http.StatusBadRequest, []string{})
 }
 
 func campaignValidationErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, validationErrors []string) {
-	log.Ctx(ctx).Warn().Msgf("received campaign data with validation errors: %v", validationErrors)
+	aulogging.Logger.Ctx(ctx).Warn().Printf("received campaign data with validation errors: %v", validationErrors)
 	errorHandler(ctx, w, r, "campaign.data.invalid", http.StatusBadRequest, validationErrors)
 }
 
 func invalidIdErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, err error, id string) {
-	log.Ctx(ctx).Warn().Err(err).Msgf("received invalid attendee id '%s'", id)
+	aulogging.Logger.Ctx(ctx).Warn().WithErr(err).Printf("received invalid attendee id '%s'", id)
 	errorHandler(ctx, w, r, "campaign.id.invalid", http.StatusBadRequest, []string{})
 }
 
 func campaignNotFoundErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, id uint) {
-	log.Ctx(ctx).Warn().Msgf("campaign id %v not found", id)
+	aulogging.Logger.Ctx(ctx).Warn().Printf("campaign id %v not found", id)
 	errorHandler(ctx, w, r, "campaign.id.notfound", http.StatusNotFound, []string{})
 }
 
 func campaignExecutionGlobalErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, err error, id uint) {
-	log.Ctx(ctx).Warn().Err(err).Msgf("campaign id %v execution error - mails were not sent: %v", id, err)
+	aulogging.Logger.Ctx(ctx).Warn().WithErr(err).Printf("campaign id %v execution error - mails were not sent: %v", id, err)
 	errorHandler(ctx, w, r, "campaign.execution.failed", http.StatusBadGateway, []string{err.Error()})
 }
 
 func campaignWriteErrorHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) {
-	log.Ctx(ctx).Warn().Err(err).Msgf("campaign could not be written: %v", err)
+	aulogging.Logger.Ctx(ctx).Warn().WithErr(err).Printf("campaign could not be written: %v", err)
 	if err.Error() == "duplicate campaign subject" {
 		errorHandler(ctx, w, r, "campaign.data.duplicate", http.StatusBadRequest, []string{"there is already a campaign with this subject"})
 	} else {
@@ -240,6 +240,6 @@ func writeJson(ctx context.Context, w http.ResponseWriter, v interface{}) {
 	encoder.SetEscapeHTML(false)
 	err := encoder.Encode(v)
 	if err != nil {
-		log.Ctx(ctx).Warn().Err(err).Msgf("error while encoding json response: %v", err)
+		aulogging.Logger.Ctx(ctx).Warn().WithErr(err).Printf("error while encoding json response: %v", err)
 	}
 }

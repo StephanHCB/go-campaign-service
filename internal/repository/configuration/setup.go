@@ -3,7 +3,7 @@ package configuration
 import (
 	"github.com/StephanHCB/go-autumn-config"
 	"github.com/StephanHCB/go-autumn-config-api"
-	"github.com/rs/zerolog/log"
+	aulogging "github.com/StephanHCB/go-autumn-logging"
 )
 
 // initialize configuration with full setup - you need to call this
@@ -26,9 +26,9 @@ func SetupForIntegrationTest(failFunc auconfigapi.ConfigFailFunc, warnFunc aucon
 
 func fail(err error) {
 	// this will os.exit 1
-	log.Fatal().Err(err).Msg(err.Error())
+	aulogging.Logger.NoCtx().Fatal().WithErr(err).Print(err.Error())
 }
 
 func warn(message string) {
-	log.Warn().Msg(message)
+	aulogging.Logger.NoCtx().Warn().Print(message)
 }
