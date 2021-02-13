@@ -45,7 +45,7 @@ type zerologLogEntry struct {
 	userAgent string
 }
 
-func (l *zerologLogEntry) Write(status, bytes int, elapsed time.Duration) {
+func (l *zerologLogEntry) Write(status, bytes int, header http.Header, elapsed time.Duration, extra interface{}) {
 	msg := "Request"
 
 	ctxLogger := aulogging.Logger.Ctx(l.request.Context())

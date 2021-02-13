@@ -11,7 +11,7 @@ require (
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5
 	github.com/auth0/go-jwt-middleware v0.0.0-20200507191422-d30d7b9ece63
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/go-chi/chi v4.0.3+incompatible
+	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/jinzhu/gorm v1.9.12
 	github.com/pact-foundation/pact-go v1.4.3
