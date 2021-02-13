@@ -15,11 +15,14 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"net/http"
+	"time"
 )
 
 // use this for easy mocking
 
 var failFunction = fail
+
+var RequestTimeout = 2 * time.Minute
 
 func fail(err error) {
 	// this does os.exit 1
@@ -35,6 +38,8 @@ func Create(campaignService campaignsrv.CampaignService) chi.Router {
 
 	server.Use(middleware.Logger)
 	requestlogging.Setup()
+
+	server.Use(middleware.Timeout(RequestTimeout))
 
 	server.Use(loggermiddleware.AddZerologLoggerToContext)
 
@@ -56,7 +61,16 @@ func Create(campaignService campaignsrv.CampaignService) chi.Router {
 func Serve(server chi.Router) {
 	address := configuration.ServerAddress()
 	aulogging.Logger.NoCtx().Info().Print("Starting web server on " + address)
-	err := http.ListenAndServe(address, server)
+
+	srv := &http.Server{
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
+		// TLSConfig:    tlsConfig,
+		Addr:    address,
+		Handler: server,
+	}
+	err := srv.ListenAndServe()
 	if err != nil {
 		// TODO log a warning on intentional shutdown, and an error otherwise
 		failFunction(fmt.Errorf("Fatal error while starting web server: %s\n", err))
